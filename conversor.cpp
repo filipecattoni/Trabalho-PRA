@@ -206,7 +206,7 @@ int main(int argc, char const *argv[])
 {
     setbuf(stdin, NULL);
 
-    //convert_data();
+    convert_data();
 
     dumpFile();
 
