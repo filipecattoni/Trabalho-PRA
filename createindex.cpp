@@ -47,6 +47,7 @@ vector<ID_Page> btree;
 void btree_insert_id(ID_Index in) {
 
     int ic = 0, ip = -1; // ic = index of current, ip = index of parent. -1 = não existe parent (raiz nó)
+    cout << in.i << " " << in.id << endl;
 
     while (!btree[ic].is_leaf) { // percorre btree até chegar em folha
 
@@ -54,7 +55,7 @@ void btree_insert_id(ID_Index in) {
         int it = 0;
 
         while (true) {
-            if (it == TREE_ORD-1) break;
+            if (it >= TREE_ORD-1) break;
             if (btree[ic].elements[it].id > in.id) break;
             it++;
         }
@@ -66,11 +67,13 @@ void btree_insert_id(ID_Index in) {
     if (btree[ic].size < TREE_ORD-1) { // folha não está cheia, inserir normalmente
         int ii = 0; // ii = insertion index
         while (true) {
-            if (ii == btree[ic].size-1) break;
+            cout << btree[ic].elements[ii].id << " > " << in.id << endl;
+            if (ii >= btree[ic].size-1) break;
             if (btree[ic].elements[ii].id > in.id) break;
             ii++;
         }
-        for (int i=btree[ic].size-1; i>=ii; i--) {
+        cout << btree[ic].size-1 << " >= " << ii << endl;
+        for (int i=btree[ic].size; i>=ii; i--) {
             btree[ic].elements[i] = btree[ic].elements[i-1];
         }
         btree[ic].elements[ii] = in;
@@ -106,12 +109,16 @@ int main() {
         count++;
     }
 
+    exit(0);
+
     fclose(fp);
-    fopen("index-id.bin", "wb");
+    fp = fopen("index-id.bin", "wb");
 
     for (auto page:btree) {
         fwrite(&page, sizeof(ID_Page), 1, fp);
     }
     cout << sizeof(ID_Page) << endl;
+
+    fclose(fp);
 
 }

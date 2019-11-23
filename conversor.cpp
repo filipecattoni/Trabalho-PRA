@@ -26,25 +26,25 @@ typedef struct game
 
 void printGame(Game g){
 
-    cout << "Game ----------------------------" << endl;
+    // cout << "Game ----------------------------" << endl;
     cout << g.id << endl;
-    cout << g.name << endl;
-    cout << g.subtitle << endl;
-    cout << g.avgRate << endl;
-    cout << g.countRate << endl;
-    cout << g.price << endl;
-    cout << g.purchases << endl;
-    cout << g.description << endl;
-    cout << g.developer << endl;
-    cout << g.age << endl;
-    cout << g.languages << endl;
-    cout << g.size << endl;
-    cout << g.primaryGenre << endl;
-    cout << g.genres << endl;
-    cout << g.originalRelease << endl;
-    cout << g.lastRelease << endl;
-    cout << g.rank << endl;
-    cout << "Endgame -------------------------" << endl;
+    // cout << g.name << endl;
+    // cout << g.subtitle << endl;
+    // cout << g.avgRate << endl;
+    // cout << g.countRate << endl;
+    // cout << g.price << endl;
+    // cout << g.purchases << endl;
+    // cout << g.description << endl;
+    // cout << g.developer << endl;
+    // cout << g.age << endl;
+    // cout << g.languages << endl;
+    // cout << g.size << endl;
+    // cout << g.primaryGenre << endl;
+    // cout << g.genres << endl;
+    // cout << g.originalRelease << endl;
+    // cout << g.lastRelease << endl;
+    // cout << g.rank << endl;
+    // cout << "Endgame -------------------------" << endl;
 
 }
 
@@ -123,50 +123,32 @@ void convert_data()
         // if(!is_numeric(row[0].c_str()))
         //     cout << "erro0: '" << row[0] << "', linha: " << i << endl;
         aux.id = stoul(row[0]);
-        cout << "a" << endl;
         strcpy(aux.name, row[1].c_str());
-        cout << "b" << endl;
         strcpy(aux.subtitle, row[2].c_str());
-        cout << "c" << endl;
         // cout << row[3] <<  endl;
         aux.avgRate = stof(row[3]);
-        cout << "d" << endl;
         // if(!is_numeric(row[4].c_str()))
         //     cout << "erro4: '" << row[4] << "', linha: " << i << endl;
         aux.countRate = stoul(row[4]);
-        cout << "e" << endl;
         // cout << row[5] <<  endl;
         aux.price = stof(row[5]);
-        cout << "f" << endl;
         strcpy(aux.purchases, row[6].c_str());
-        cout << "g" << endl;
         strcpy(aux.description, row[7].c_str());
-        cout << "h" << endl;
         strcpy(aux.developer, row[8].c_str());
-        cout << "i" << endl;
         strcpy(aux.age, row[9].c_str());
-        cout << "j" << endl;
         strcpy(aux.languages, row[10].c_str());
-        cout << "k" << endl;
         // if(!is_numeric(row[11].c_str()))
         //     cout << "erro11: '" << row[11] << "', linha: " << i << endl;
         aux.size = stoul(row[11]);
-        cout << "l" << endl;
         strcpy(aux.primaryGenre, row[12].c_str());
-        cout << "m" << endl;
         strcpy(aux.genres, row[13].c_str());
-        cout << "n" << endl;
         strcpy(aux.originalRelease, row[14].c_str());
-        cout << "p" << endl;
         strcpy(aux.lastRelease, row[15].c_str());
-        cout << "q" << endl;
         // if(!is_numeric(row[16].c_str()))
         //     cout << "erro16: '" << row[16] << "', linha: " << i << endl;
         aux.rank = stoul(row[16]);
-        cout << "r" << endl;
 
         // printGame(aux);
-        cout << i <<  endl;
         i++;
 
         if (fwrite(&aux,sizeof(Game),1,f) != 1) {
@@ -176,25 +158,20 @@ void convert_data()
     }
 
     fin.close();
-    cout << "s" << endl;
 
     fclose(f);
-    cout << "t" << endl;
 }
 
 void dumpFile(){
 
-    cout << "u" << endl;
     FILE *f = fopen("games.bin","r");
-    cout << "v" << endl;
 
     Game aux;
 
     while(fread(&aux, sizeof(game), 1,f) == 1){
 
-        cout << "x" << endl;
         printGame(aux);
-        cout << "z" << endl;
+        break;
 
     }
 
@@ -206,7 +183,7 @@ int main(int argc, char const *argv[])
 {
     setbuf(stdin, NULL);
 
-    convert_data();
+    //convert_data();
 
     dumpFile();
 
