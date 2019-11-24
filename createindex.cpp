@@ -50,7 +50,46 @@ typedef struct btree{
 
 Btree bt;
 
-void addIndexInPage( int i_page, ID_Index new_index ){
+int btree_insert_id(ID_Index in);
+void moveElementUp( int ip, ID_Index in, int i_left, int i_right );
+int addIndexInPage( int i_page, ID_Index new_index );
+void printTree();
+void printTreeUtil( int ic, int nivel );
+
+void printTreeUtil( int ic, int nivel ){
+
+    printf("n%i: ", nivel );
+
+    for(int i = 0; i < bt.nodes[ic].size; i++){
+        printf("%i - ", bt.nodes[ic].elements[i].id);
+    }
+    printf("\n");
+    for(int i = 0; i <= bt.nodes[ic].size; i++){
+        printf("%i - ", bt.nodes[ic].children[i]);
+    }
+    printf("\n");
+
+    if(!bt.nodes[ic].is_leaf) { // percorre bt.nodes até chegar em folha
+
+        for(int i = 0; i <= bt.nodes[ic].size; i++){
+            if(bt.nodes[ic].children[i] != -1)
+                printTreeUtil( bt.nodes[ic].children[i], nivel + 1 );
+        }
+
+    }
+
+}
+
+void printTree(){
+
+    int ic = bt.root; // ic = index of current, ip = index of parent. -1 = não existe parent (raiz nó)
+    printf("\n\n------------------------\n");
+    printTreeUtil(ic, 0);
+    printf("\n------------------------\n\n");
+
+}
+
+int addIndexInPage( int i_page, ID_Index new_index ){
 
     int ii = 0; // ii = insertion index
 
@@ -60,51 +99,69 @@ void addIndexInPage( int i_page, ID_Index new_index ){
         if (bt.nodes[i_page].elements[ii].id > new_index.id) break;
         ii++;
     }
-    cout << bt.nodes[i_page].size-1 << " >= " << ii << endl;
     for (int i=bt.nodes[i_page].size; i>=ii; i--) {
         bt.nodes[i_page].elements[i] = bt.nodes[i_page].elements[i-1];
-        cout << ii << " " << i << endl;
     }
     bt.nodes[i_page].elements[ii] = new_index;
     bt.nodes[i_page].size++;
+    return ii;
 }
 
-void btree_insert_id(ID_Index in) {
+void moveElementUp( int ip, ID_Index in, int i_left, int i_right ){
+
+    if(bt.nodes[ip].size < TREE_ORD-1){
+
+        int ii;
+        ii = addIndexInPage(ip, in);
+        for (int i=bt.nodes[ip].size; i>=ii; i--) {
+            bt.nodes[ip].children[i] = bt.nodes[ip].children[i-1];
+        }
+        bt.nodes[ip].children[ii] = i_left;
+        bt.nodes[ip].children[ii + 1] = i_right;
+
+    }else{
+
+        bt.nodes[ip].is_leaf = true;
+        btree_insert_id(in);
+        bt.nodes[ip].is_leaf = false;
+
+    }
+
+}
+
+int btree_insert_id(ID_Index in) {
 
     int ic = bt.root, ip = -1; // ic = index of current, ip = index of parent. -1 = não existe parent (raiz nó)
-    cout << in.i << " " << in.id << endl;
+    int ii;
 
     while (!bt.nodes[ic].is_leaf) { // percorre bt.nodes até chegar em folha
 
         ip = ic;
         int it = 0;
-        cout << ic << " " << bt.nodes[ic].size-1 << " " << it << endl;
-        cout << bt.nodes[ic].elements[it].id << " > " << in.id << endl;
+        // printf("2: %i \n", ic);
+        // printf("4: %i\n", bt.nodes[ic].size);
 
         while (true) {
             if (it > bt.nodes[ic].size-1) break;
-            printf("1\n");
             if (bt.nodes[ic].elements[it].id > in.id) break;
-            printf("2\n");
+            // printf("3: %i \n", bt.nodes[ic].children[it]);
             it++;
-            cout << "o";
         }
-        printf("3\n");
         ic = bt.nodes[ic].children[it];
-        printf("4 %i\n", ic);
+        // printf("1: %i \n", ic);
+        if(ic == -1) exit(0);
+
     }
-    printf("1\n");
+    // printf("1\n");
     if (bt.nodes[ic].size < TREE_ORD-1) { // folha não está cheia, inserir normalmente
 
-        cout << "d";
-        addIndexInPage( ic, in );
-        for (int j=0; j<bt.nodes[ic].size; j++) {
-            cout << bt.nodes[ic].elements[j].id << ", índice " << bt.nodes[ic].elements[j].i << endl;
-        }
-        cout << endl;
+        ii = addIndexInPage( ic, in );
+        // for (int j=0; j<bt.nodes[ic].size; j++) {
+        //     cout << bt.nodes[ic].elements[j].id << ", índice " << bt.nodes[ic].elements[j].i << endl;
+        // }
+        // cout << endl;
         
     }else{
-        cout << "c";
 
         int i_split = (TREE_ORD-1)/2;
         int i;
@@ -114,6 +171,7 @@ void btree_insert_id(ID_Index in) {
         ID_Page rightNode;
         rightNode.is_leaf = bt.nodes[ic].is_leaf;
         rightNode.size = bt.nodes[ic].size/2;
+        memset(rightNode.children, -1, sizeof(rightNode.children));
         for (i=0; i<bt.nodes[ic].size/2; i++) {
             rightNode.elements[i] = bt.nodes[ic].elements[i+bt.nodes[ic].size/2+1];
             rightNode.children[i] = bt.nodes[ic].children[bt.nodes[ic].size/2+i+1];
@@ -125,36 +183,50 @@ void btree_insert_id(ID_Index in) {
 
         // adicionando novo nó à bt.nodes
         bt.nodes.push_back(rightNode);
+        int i_right = bt.nodes.size()-1;
 
         // adicionando in em uma das duas páginas criadas
+        ID_Index splited_element = bt.nodes[ic].elements[i_split]; // guardando caso seja alterado por addIndexInPage( ic, in );
         if(in.id > bt.nodes[ic].elements[i_split].id){
-            addIndexInPage( bt.nodes.size()-1, in );
+            addIndexInPage( i_right, in );
         }else{
             addIndexInPage( ic, in );
         }
 
         if(ip == -1){
-            cout << "b";
-
+            printf("gerou novo nó\n");
             // criando novo nó raiz
             ID_Page newRoot;
             newRoot.is_leaf = false;
             newRoot.size = 1;
-            newRoot.elements[0] = bt.nodes[ic].elements[i_split];
+            newRoot.elements[0] = splited_element;
+            memset(newRoot.children, -1, sizeof(newRoot.children));
             newRoot.children[0] = ic;
-            newRoot.children[1] = bt.nodes.size() - 1;
+            newRoot.children[1] = i_right;
             bt.nodes.push_back(newRoot);
-            bt.root = bt.nodes.size() - 1;
+            bt.root = bt.nodes.size()-1;
+            // printf("3 %i\n", bt.root);
 
         }else{
-            cout << "a";
-
+            printf("moveu nó para cima\n");
             // adicionado elemento no nó pai 
-            addIndexInPage( ip, bt.nodes[ic].elements[i_split] );
+            //addIndexInPage( ip, bt.nodes[ic].elements[i_split] );
+            
+            // bt.nodes[ip].is_leaf = true;
+            // ii = btree_insert_id(splited_element);
+            // bt.nodes[ip].children[ii] = ic;
+            // bt.nodes[ip].children[ii + 1] = i_right;
+            // bt.nodes[ip].is_leaf = false;
+
+            moveElementUp( ip, splited_element, ic, i_right );
 
         }
 
     }
+
+    printTree();
+
+    return ii;
 
 }
 
@@ -170,15 +242,16 @@ int main() {
     ID_Page root;
     root.is_leaf = true;
     root.size = 0;
+    memset(root.children, -1, sizeof(root.children));
     bt.nodes.push_back(root);
     bt.root = 0;
 
     while (!feof(fp)) {
-        // if (count == 10) exit(0);
+        // if (count == 21) exit(0);
         fread(&temp, sizeof(Game), 1, fp);
         in.i = count;
         in.id = temp.id;
-        // cout << in.id << ", index " << in.i << endl;
+        cout << in.id << ", index " << in.i << endl;
         btree_insert_id(in);
         count++;
     }
