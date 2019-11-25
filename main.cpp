@@ -3,12 +3,27 @@ using namespace std;
 
 int main () {
 
-    FILE *fp = fopen("index-id.bin", "rb");
-    unsigned int id;
+    // FILE *fp = fopen("games.bin", "rb");
+    // Game temp;
+    // int i=0;
 
-    cin >> id;
+    // while (true) {
+    //     fread(&temp, sizeof(Game), 1, fp);
+    //     if (feof(fp)) break;
+    //     cout << i << ": " << temp.name << endl;
+    //     i++;
+    // }
 
-    cout << id_get_index(id, 0, fp) << endl;
+    // fclose(fp);
+
+    FILE *fp = fopen("index-name.bin", "rb");
+    char name[100];
+    string line;
+
+    getline(cin, line);
+    strcpy(name, line.c_str());
+
+    cout << str_get_index(name, 0, fp) << endl;
 
     fclose(fp);
 

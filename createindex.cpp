@@ -10,27 +10,41 @@ using namespace std;
 
 int main() {
 
-    vector<ID_Page> btree;
+    vector<NUM_Page> btree_id, btree_rank;
+    vector<STR_Page> btree_name;
     Game temp;
-    ID_Index in;
+    NUM_Index in;
+    STR_Index in_str;
 
     FILE *fp = fopen("games.bin", "rb");
     int count = 0;
 
-    ID_Page root;
+    NUM_Page root;
     root.is_leaf = true;
     root.size = 0;
     root.parent = -1;
-    btree.push_back(root);
+    btree_id.push_back(root);
+    btree_rank.push_back(root);
+
+    STR_Page root_str;
+    root_str.is_leaf = true;
+    root_str.size = 0;
+    root_str.parent = -1;
+    btree_name.push_back(root_str);
 
     while (!feof(fp)) {
-        // if (count == 25) break;
+        // if (count == 927) break;
         fread(&temp, sizeof(Game), 1, fp);
         in.i = count;
-        in.id = temp.id;
+        in.num = temp.id;
         // cout << in.id << ", index " << in.i << endl;
-        btree_insert_id(in, btree);
-        // cout << btree.size() << endl;
+        btree_insert_num(in, btree_id);
+        in.num = temp.rank;
+        btree_insert_num(in, btree_rank);
+        strcpy(in_str.str, temp.name);
+        in_str.i = count;
+        // cout << count << " " << in_str.str << endl;
+        btree_insert_str(in_str, btree_name);
         count++;
     }
 
@@ -39,8 +53,24 @@ int main() {
     fclose(fp);
     fp = fopen("index-id.bin", "wb");
 
-    for (auto page:btree) {
-        fwrite(&page, sizeof(ID_Page), 1, fp);
+    for (auto page:btree_id) {
+        fwrite(&page, sizeof(NUM_Page), 1, fp);
+    }
+
+    fclose(fp);
+
+    fp = fopen("index-rank.bin", "wb");
+
+    for (auto page:btree_rank) {
+        fwrite(&page, sizeof(NUM_Page), 1, fp);
+    }
+
+    fclose(fp);
+
+    fp = fopen("index-name.bin", "wb");
+
+    for (auto page:btree_name) {
+        fwrite(&page, sizeof(STR_Page), 1, fp);
     }
 
     fclose(fp);
