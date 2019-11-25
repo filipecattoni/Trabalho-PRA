@@ -1,4 +1,10 @@
-all: ci ri main
+all: ci ri main co
+
+co: comparison.o ops-num.o ops-str.o
+	g++ comparison.o ops-num.o ops-str.o -o co
+
+comparison.o:
+	g++ -Wall -c comparison.cpp
 
 main: main.o ops-num.o ops-str.o
 	g++ main.o ops-num.o ops-str.o -o main
@@ -25,4 +31,4 @@ readindex.o:
 	g++ -Wall -c readindex.cpp
 
 clean:
-	rm ci ri main createindex.o ops-num.o ops-str.o readindex.o main.o 
+	rm ci ri main createindex.o ops-num.o ops-str.o readindex.o main.o comparison.o
